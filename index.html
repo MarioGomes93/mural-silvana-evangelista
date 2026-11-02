@@ -3,46 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mural de Avisos | E.E. Profª Silvana Evangelista</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Mural Digital | E.E. Profª Silvana Evangelista</title>
+    <style>
+        :root {
+            --primary: #0b4f6c;
+            --primary-dark: #07364b;
+            --accent: #01baef;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            
+            /* Cores das categorias */
+            --tag-urgente: #e53e3e;
+            --tag-pedagogico: #3182ce;
+            --tag-secretaria: #38a169;
+            --tag-eventos: #d69e2e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Cabeçalho */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 2.2rem 0 3rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+        }
+
+        .badge-seduc {
+            background: rgba(255, 255, 255, 0.18);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .header h1 {
+            font-size: 2.1rem;
+            margin: 0.6rem 0 0.3rem 0;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Seção de Links Úteis (Acesso Rápido) */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: -1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-card {
+            background: #ffffff;
+            padding: 1rem 1.2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            border-left: 4px solid var(--accent);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .quick-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .quick-icon {
+            font-size: 1.6rem;
+        }
+
+        .quick-info h4 {
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 0.1rem;
+        }
+
+        .quick-info span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        /* Barra de Status da Planilha */
+        .sync-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #38a169;
+            margin-right: 5px;
+        }
+
+        /* Controles de Busca e Filtro */
+        .controls {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #fff;
+            padding: 1.2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            background: #edf2f7;
+            color: var(--text-main);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* Grid de Avisos */
+        .avisos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.15s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card.Urgente { border-top-color: var(--tag-urgente); }
+        .card.Pedagógico { border-top-color: var(--tag-pedagogico); }
+        .card.Secretaria { border-top-color: var(--tag-secretaria); }
+        .card.Eventos { border-top-color: var(--tag-eventos); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .tag {
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag.Urgente { background-color: var(--tag-urgente); }
+        .tag.Pedagógico { background-color: var(--tag-pedagogico); }
+        .tag.Secretaria { background-color: var(--tag-secretaria); }
+        .tag.Eventos { background-color: var(--tag-eventos); }
+
+        .date {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .card h3 {
+            margin-bottom: 0.6rem;
+            font-size: 1.15rem;
+            color: #1a202c;
+        }
+
+        .card p {
+            font-size: 0.94rem;
+            color: #4a5568;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-footer {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--primary);
+            border-top: 1px solid #edf2f7;
+            padding-top: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Rodapé */
+        .footer {
+            margin-top: auto;
+            background: #1a202c;
+            color: #a0aec0;
+            text-align: center;
+            padding: 1.8rem 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-sub {
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            opacity: 0.75;
+        }
+    </style>
 </head>
 <body>
 
     <header class="header">
         <div class="container">
-            <span class="badge-seduc">Rede Estadual de Ensino</span>
+            <span class="badge-seduc">Secretaria da Educação • SP</span>
             <h1>E.E. Profª Silvana Evangelista</h1>
-            <p>Mural Oficial de Comunicados, Eventos e Avisos Escolares</p>
+            <p>Portal de Comunicados, Acesso Rápido e Avisos Escolares</p>
         </div>
     </header>
 
     <main class="container">
-        <!-- Barra de Controles: Busca e Filtros -->
+        <!-- Seção 1: Links Úteis (SED, Boletim, Horários) -->
+        <section class="quick-links" aria-label="Links Úteis">
+            <a href="https://sed.educacao.sp.gov.br/" target="_blank" rel="noopener" class="quick-card">
+                <div class="quick-icon">🖥️</div>
+                <div class="quick-info">
+                    <h4>Portal SED</h4>
+                    <span>Secretaria Escolar Digital</span>
+                </div>
+            </a>
+
+            <a href="https://sed.educacao.sp.gov.br/Boletim/BoletimEscolar" target="_blank" rel="noopener" class="quick-card">
+                <div class="quick-icon">📊</div>
+                <div class="quick-info">
+                    <h4>Boletim Escolar</h4>
+                    <span>Consulta por RA do Aluno</span>
+                </div>
+            </a>
+
+            <a href="https://sed.educacao.sp.gov.br/Ncta/ConsultaAluno/Index" target="_blank" rel="noopener" class="quick-card">
+                <div class="quick-icon">🪪</div>
+                <div class="quick-info">
+                    <h4>Consultar RA</h4>
+                    <span>Descubra o Registro do Aluno</span>
+                </div>
+            </a>
+
+            <a href="#horarios" onclick="filtrarPorPalavra('Horário')" class="quick-card">
+                <div class="quick-icon">🕒</div>
+                <div class="quick-info">
+                    <h4>Horários e Grade</h4>
+                    <span>Manhã, Tarde, Noite e Técnico</span>
+                </div>
+            </a>
+        </section>
+
+        <!-- Barra de Status de Sincronização -->
+        <div class="sync-bar">
+            <span id="syncStatus"><span class="status-dot"></span>Mural carregado (Modo Demonstração Local)</span>
+            <span>Dica: Use os botões abaixo para filtrar por setor</span>
+        </div>
+
+        <!-- Seção 2: Controles de Busca e Filtro -->
         <section class="controls">
-            <input type="text" id="searchInput" placeholder="Buscar aviso por palavra-chave...">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar aviso por palavra-chave (ex: rematrícula, reunião, técnico, horário)...">
             
             <div class="filter-buttons">
                 <button class="filter-btn active" data-category="Todos">Todos</button>
-                <button class="filter-btn" data-category="Urgente">Urgente</button>
-                <button class="filter-btn" data-category="Pedagógico">Pedagógico</button>
-                <button class="filter-btn" data-category="Secretaria">Secretaria</button>
-                <button class="filter-btn" data-category="Eventos">Eventos</button>
+                <button class="filter-btn" data-category="Urgente">🚨 Urgente</button>
+                <button class="filter-btn" data-category="Pedagógico">📚 Pedagógico</button>
+                <button class="filter-btn" data-category="Secretaria">🗂️ Secretaria</button>
+                <button class="filter-btn" data-category="Eventos">🎉 Eventos</button>
             </div>
         </section>
 
-        <!-- Lista de Avisos (Preenchida via JavaScript) -->
+        <!-- Seção 3: Grid de Avisos -->
         <section id="avisosContainer" class="avisos-grid">
-            <!-- Os cartões de aviso aparecerão aqui -->
+            <!-- Preenchido via JavaScript -->
         </section>
     </main>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 E.E. Professora Silvana Evangelista - Todos os direitos reservados.</p>
-            <p class="footer-sub">Protótipo de Mural Digital Estático</p>
+            <p>&copy; 2026 E.E. Professora Silvana Evangelista — Diretoria de Ensino</p>
+            <p class="footer-sub">Mural Digital Estático integrado ao Google Sheets • Hospedado via GitHub Pages</p>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        /**
+         * CONFIGURAÇÃO DO GOOGLE SHEETS:
+         * Cole abaixo o link CSV gerado em "Arquivo > Compartilhar > Publicar na Web (formato CSV)".
+         * Enquanto estiver vazio (""), o site usará os avisos de demonstração abaixo.
+         */
+        const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQgCFkdOEGD3aBRzQchy4rGfPBQNQ7VXsGLYmxyF0NHewkKkaSBKOHpClbXTLnlmlcKHqOD24r6vH_T/pub?gid=0&single=true&output=csv";
+
+        // Avisos padrão (Fallback caso a planilha ainda não esteja conectada)
+        const avisosPadrao = [
+            {
+                titulo: "Prazo Final: Rematrícula Escolar na SED",
+                categoria: "Urgente",
+                data: "23/10/2026",
+                resumo: "Atenção responsáveis! O prazo para atualização cadastral e confirmação de matrícula na plataforma Secretaria Escolar Digital (SED) encerra nesta sexta-feira.",
+                publico: "Ensino Fundamental e Médio"
+            },
+            {
+                titulo: "Reunião de Pais e Mestres - 3º Bimestre",
+                categoria: "Pedagógico",
+                data: "24/10/2026",
+                resumo: "Convidamos todos os responsáveis para a reunião de acompanhamento de rendimento escolar e entrega de resultados bimestrais.",
+                publico: "Todos os períodos"
+            },
+            {
+                titulo: "Horário de Aulas e Atendimento da Secretaria",
+                categoria: "Secretaria",
+                data: "Fixo",
+                resumo: "Manhã: 07h00 às 12h20 | Tarde: 13h00 às 18h20 | Noite: 19h00 às 23h00. Atendimento presencial na secretaria das 08h00 às 17h00.",
+                publico: "Comunidade Escolar"
+            },
+            {
+                titulo: "Mostra de Projetos e Tecnologia",
+                categoria: "Eventos",
+                data: "06/11/2026",
+                resumo: "Apresentação dos sistemas, protótipos web e trabalhos desenvolvidos pelos estudantes ao longo do semestre.",
+                publico: "Alunos e Familiares"
+            },
+            {
+                titulo: "Retirada de Histórico Escolar e Certificados",
+                categoria: "Secretaria",
+                data: "19/10/2026",
+                resumo: "Documentos solicitados até o final do mês anterior já estão disponíveis para retirada mediante apresentação de documento oficial com foto.",
+                publico: "Ex-alunos e Concluintes"
+            }
+        ];
+
+        let listaAvisos = [...avisosPadrao];
+        let categoriaAtiva = 'Todos';
+
+        const container = document.getElementById('avisosContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const syncStatus = document.getElementById('syncStatus');
+
+        // Parser simples de CSV (suporta textos entre aspas com vírgulas)
+        function parseCSV(csvText) {
+            const linhas = csvText.trim().split('\n');
+            const resultado = [];
+            // Pula a linha 0 (cabeçalho da planilha)
+            for (let i = 1; i < linhas.length; i++) {
+                const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
+                const colunas = [];
+                let match;
+                // Divisão segura por vírgula respeitando aspas
+                const row = linhas[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+                if (row.length >= 5) {
+                    const limpar = (txt) => txt ? txt.replace(/^"|"$/g, '').trim() : '';
+                    resultado.push({
+                        titulo: limpar(row[0]),
+                        categoria: limpar(row[1]),
+                        data: limpar(row[2]),
+                        resumo: limpar(row[3]),
+                        publico: limpar(row[4])
+                    });
+                }
+            }
+            return resultado;
+        }
+
+        // Busca dados do Google Sheets se a URL estiver configurada
+        async function carregarAvisosDaPlanilha() {
+            if (!GOOGLE_SHEETS_CSV_URL) {
+                renderizarAvisos();
+                return;
+            }
+
+            try {
+                syncStatus.innerHTML = `⏳ Sincronizando avisos com a planilha da escola...`;
+                const resposta = await fetch(GOOGLE_SHEETS_CSV_URL);
+                if (!resposta.ok) throw new Error('Falha ao buscar CSV');
+                const csvText = await resposta.text();
+                const dadosPlanilha = parseCSV(csvText);
+
+                if (dadosPlanilha.length > 0) {
+                    listaAvisos = dadosPlanilha;
+                    syncStatus.innerHTML = `<span class="status-dot"></span>Sincronizado em tempo real com Google Sheets`;
+                }
+            } catch (erro) {
+                console.warn("Usando avisos locais de segurança:", erro);
+                syncStatus.innerHTML = `⚠️ Modo Offline (Exibindo avisos salvos localmente)`;
+            } finally {
+                renderizarAvisos();
+            }
+        }
+
+        function renderizarAvisos(textoBusca = '') {
+            container.innerHTML = '';
+
+            const filtrados = listaAvisos.filter(aviso => {
+                const bateCategoria = categoriaAtiva === 'Todos' || aviso.categoria === categoriaAtiva;
+                const termo = textoBusca.toLowerCase();
+                const bateTexto = aviso.titulo.toLowerCase().includes(termo) ||
+                                  aviso.resumo.toLowerCase().includes(termo) ||
+                                  aviso.publico.toLowerCase().includes(termo);
+                return bateCategoria && bateTexto;
+            });
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #718096;">Nenhum comunicado encontrado para este filtro.</p>`;
+                return;
+            }
+
+            filtrados.forEach(aviso => {
+                const card = document.createElement('article');
+                card.className = `card ${aviso.categoria}`;
+                card.innerHTML = `
+                    <div>
+                        <div class="card-header">
+                            <span class="tag ${aviso.categoria}">${aviso.categoria}</span>
+                            <span class="date">📅 ${aviso.data}</span>
+                        </div>
+                        <h3>${aviso.titulo}</h3>
+                        <p>${aviso.resumo}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span>🎯 Público: ${aviso.publico}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Atalho para o card "Horários e Grade"
+        function filtrarPorPalavra(palavra) {
+            searchInput.value = palavra;
+            categoriaAtiva = 'Todos';
+            filterBtns.forEach(b => b.classList.remove('active'));
+            filterBtns[0].classList.add('active');
+            renderizarAvisos(palavra);
+            searchInput.focus();
+        }
+
+        // Eventos dos botões de categoria
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                categoriaAtiva = btn.getAttribute('data-category');
+                renderizarAvisos(searchInput.value);
+            });
+        });
+
+        // Evento da barra de pesquisa
+        searchInput.addEventListener('input', (e) => {
+            renderizarAvisos(e.target.value);
+        });
+
+        // Inicialização
+        carregarAvisosDaPlanilha();
+    </script>
 </body>
 </html>
